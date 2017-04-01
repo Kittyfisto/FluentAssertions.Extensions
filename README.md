@@ -1,6 +1,6 @@
 # FluentAssertion Extensions
 
-[![Build status]()]()
+[![Build status](https://ci.appveyor.com/api/projects/status/oqio2y57p0hnshnu?svg=true)](https://ci.appveyor.com/project/Kittyfisto/fluentassertions-extensions)
 
 Several extensions to the awesome FluentAssertion library.
 
@@ -13,7 +13,7 @@ myObject.Property(x => x.IsFinished).ShouldEventually().BeTrue(TimeSpan.FromSeco
 
 ## Credits
 
-Simon Mieﬂler 2017
+Simon Mie√üler 2017
 
 ## License
 
