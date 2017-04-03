@@ -9,7 +9,9 @@ Several extensions to the awesome FluentAssertion library.
 This library features assertions that continously poll a property until the desired
 condition is met. Example:
 
+```c#
 myObject.Property(x => x.IsFinished).ShouldEventually().BeTrue(TimeSpan.FromSeconds(2));
+```
 
 ## Credits
 
