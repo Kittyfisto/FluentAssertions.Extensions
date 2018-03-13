@@ -13,9 +13,25 @@ namespace FluentAssertions
 			_getter = getter;
 		}
 
+		/// <summary>
+		///     Starts a blocking observation of an object's property which performs busy
+		///     waiting until a certain assertion is fullfilled or a given amount of time elapses.
+		/// </summary>
+		/// <returns></returns>
 		public EventualAssertions<TProperty> ShouldEventually()
 		{
 			return new EventualAssertions<TProperty>(() => _getter(_subject));
+		}
+
+		/// <summary>
+		///     Starts a blocking observation of an object's property which performs busy
+		///     waiting until a certain assertion is fullfilled or the given amount of time elapses.
+		/// </summary>
+		/// <param name="maximumWaitTime"></param>
+		/// <returns></returns>
+		public EventualAssertions<TProperty> ShouldAfter(TimeSpan maximumWaitTime)
+		{
+			return new EventualAssertions<TProperty>(() => _getter(_subject), maximumWaitTime);
 		}
 	}
 }

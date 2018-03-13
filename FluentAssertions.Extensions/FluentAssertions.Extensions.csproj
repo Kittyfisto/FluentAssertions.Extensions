@@ -54,6 +54,7 @@
     <Compile Include="PropertyAssertions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="FluentAssertions.Extensions.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

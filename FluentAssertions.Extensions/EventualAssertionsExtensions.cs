@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
@@ -8,94 +9,119 @@ namespace FluentAssertions
 {
 	public static class EventualAssertionsExtensions
 	{
-		/// <summary>
-		///     The amount of time any of the BeXYZ methods block before failing, if no custom
-		///     maximumWaitTime has been specified.
-		/// </summary>
-		public static readonly TimeSpan DefaultWaitTime = TimeSpan.FromSeconds(10);
-
 		public static void BeTrue(this EventualAssertions<bool> that, string message = null)
 		{
-			BeTrue(that, DefaultWaitTime, message);
-		}
-
-		public static void BeTrue(this EventualAssertions<bool> that, TimeSpan maximumWaitTime, string message = null)
-		{
-			that.Be(true, maximumWaitTime, message);
+			that.Be(expectedValue: true, message: message);
 		}
 
 		public static void BeFalse(this EventualAssertions<bool> that, string message = null)
 		{
-			BeFalse(that, DefaultWaitTime, message);
+			that.Be(expectedValue: false, message: message);
 		}
 
-		public static void BeFalse(this EventualAssertions<bool> that, TimeSpan maximumWaitTime, string message = null)
-		{
-			that.Be(false, maximumWaitTime, message);
-		}
-
-		public static void BeGreaterOrEqual(this EventualAssertions<int> that, int threshold, TimeSpan maximumWaitTime, string message = null)
+		public static void BeGreaterOrEqual(this EventualAssertions<int> that,
+		                                    int threshold,
+		                                    string message = null)
 		{
 			int finalValue;
-			if (IsTrue(that, value => value >= threshold, maximumWaitTime, out finalValue))
+			if (IsTrue(that, value => value >= threshold, that.MaximumWaitTime, out finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();
 			completeMessage.AppendFormat("Expected {0} to be greater or equal to {1}",
 			                             finalValue,
 			                             threshold);
-			completeMessage.AppendWaitTime(maximumWaitTime);
+			completeMessage.AppendWaitTime(that.MaximumWaitTime);
 			completeMessage.AppendMessage(message);
+			completeMessage.Append(".");
 
 			throw new AssertionException(completeMessage.ToString());
 		}
 
-		public static void Be<T>(this EventualAssertions<T> that, T expectedValue, string message = null)
-		{
-			Be(that, expectedValue, DefaultWaitTime, message);
-		}
-
-		public static void Be<T>(this EventualAssertions<T> that, T expectedValue, TimeSpan maximumWaitTime,
+		public static void Be<T>(this EventualAssertions<T> that,
+		                         T expectedValue,
 		                         string message = null)
 		{
 			T finalValue;
-			if (IsTrue(that, value => Equals(value, expectedValue), maximumWaitTime, out finalValue))
+			if (IsTrue(that, value => Equals(value, expectedValue), that.MaximumWaitTime, out finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();
 			completeMessage.AppendFormat("Expected {0}, but found found {1}",
 			                             expectedValue,
 			                             finalValue);
-			completeMessage.AppendWaitTime(maximumWaitTime);
+			completeMessage.AppendWaitTime(that.MaximumWaitTime);
 			completeMessage.AppendMessage(message);
+			completeMessage.Append(".");
 
 			throw new AssertionException(completeMessage.ToString());
 		}
 
-		public static void Equal<T>(this EventualAssertions<IEnumerable<T>> that, IEnumerable<T> expectedEnumeration,
+		public static void Equal<T>(this EventualAssertions<IEnumerable<T>> that,
+		                            IEnumerable<T> expectedEnumeration,
 		                            string message = null)
 		{
-			Equal(that, expectedEnumeration, DefaultWaitTime, message);
+			var expectedCopy = expectedEnumeration.ToList();
+
+			IEnumerable<T> finalValue;
+			if (IsTrue(that, values =>
+			{
+				var copy = values?.ToList();
+				if (copy?.Count != expectedCopy.Count)
+					return false;
+
+				for (int i = 0; i < copy.Count; ++i)
+				{
+					if (!Equals(copy[i], expectedCopy[i]))
+						return false;
+				}
+
+				return true;
+			}, that.MaximumWaitTime, out finalValue))
+				return;
+
+			var completeMessage = new StringBuilder();
+			completeMessage.Append("Expected collection equal to ");
+			completeMessage.AppendFormat(expectedCopy);
+			completeMessage.Append(", but found found ");
+			completeMessage.AppendFormat(finalValue);
+			completeMessage.AppendWaitTime(that.MaximumWaitTime);
+			completeMessage.AppendMessage(message);
+			completeMessage.Append(".");
+
+			throw new AssertionException(completeMessage.ToString());
 		}
 
-		public static void Equal<T>(this EventualAssertions<IEnumerable<T>> that, IEnumerable<T> expectedEnumeration,
-		                            TimeSpan maximumWaitTime,
-		                            string message = null)
+		public static void BeEmpty<T>(this EventualAssertions<IEnumerable<T>> that, string message = null)
 		{
-			throw new NotImplementedException();
+			IEnumerable<T> finalValue;
+			if (IsTrue(that, values => values != null && !values.Any(), that.MaximumWaitTime, out finalValue))
+				return;
+
+			var completeMessage = new StringBuilder();
+			completeMessage.Append("Expected empty collection, but found found ");
+			completeMessage.AppendFormat(finalValue);
+			completeMessage.AppendWaitTime(that.MaximumWaitTime);
+			completeMessage.AppendMessage(message);
+			completeMessage.Append(".");
+
+			throw new AssertionException(completeMessage.ToString());
 		}
 
-		private static bool IsTrue<T>(this EventualAssertions<T> that, Predicate<T> predicate, TimeSpan maximumWaitTime, out T finalValue)
+		private static bool IsTrue<T>(this EventualAssertions<T> that,
+		                              Predicate<T> predicate,
+		                              TimeSpan maximumWaitTime,
+		                              out T finalValue)
 		{
-			DateTime started = DateTime.UtcNow;
+			var started = DateTime.UtcNow;
 			do
 			{
 				finalValue = that.GetValue();
 				if (predicate(finalValue))
 					return true;
 
-				Thread.Sleep(TimeSpan.FromMilliseconds(10));
-			} while ((DateTime.UtcNow - started) < maximumWaitTime);
+				Thread.Sleep(EventualAssertions<int>.DefaultSleepTime);
+			} while (DateTime.UtcNow - started < maximumWaitTime);
 
 			return false;
 		}
@@ -103,26 +129,51 @@ namespace FluentAssertions
 		private static void AppendMessage(this StringBuilder builder, string message)
 		{
 			if (!string.IsNullOrEmpty(message))
-			{
 				builder.AppendFormat(
-					message.StartsWith("because", StringComparison.InvariantCultureIgnoreCase)
-						? ", {0}"
-						: ", because {0}"
-					, message);
-			}
+				                     message.StartsWith("because", StringComparison.InvariantCultureIgnoreCase)
+					                     ? ", {0}"
+					                     : ", because {0}"
+				                     , message);
 		}
 
 		private static void AppendWaitTime(this StringBuilder builder, TimeSpan timespan)
 		{
-			builder.Append(" after waiting ");
-			if (timespan > TimeSpan.FromSeconds(1))
-			{
+			builder.Append(" after waiting for ");
+			if (timespan > TimeSpan.FromSeconds(value: 1))
 				builder.AppendFormat("{0} second(s)", timespan.TotalSeconds);
+			else
+				builder.AppendFormat("{0} ms", timespan.TotalMilliseconds);
+		}
+
+		private static void AppendFormat<T>(this StringBuilder builder, IEnumerable<T> values)
+		{
+			if (values == null)
+			{
+				builder.AppendNull();
 			}
 			else
 			{
-				builder.AppendFormat("{0} ms", timespan.TotalMilliseconds);
+				builder.Append("{");
+				const int maximumNumberOfDisplayedValues = 10;
+				var copy = values.ToList();
+
+				int displayCount = Math.Min(copy.Count, maximumNumberOfDisplayedValues);
+				for (int i = 0; i < displayCount; ++i)
+				{
+					if (i > 0)
+						builder.Append(", ");
+					builder.Append(copy[i]);
+				}
+
+				if (copy.Count > maximumNumberOfDisplayedValues)
+					builder.Append(", ...");
+				builder.Append("}");
 			}
+		}
+
+		private static void AppendNull(this StringBuilder builder)
+		{
+			builder.Append("<null>");
 		}
 	}
 }
