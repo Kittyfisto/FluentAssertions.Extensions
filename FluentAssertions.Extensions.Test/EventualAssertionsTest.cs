@@ -8,6 +8,43 @@ namespace FluentAssertions.Extensions.Test
 	public sealed class EventualAssertionsTest
 	{
 		[Test]
+		public void TestShouldEventuallyHaveCount1()
+		{
+			var obj = new TestClass1 {Strings = new string[0]};
+			new Action(() => obj.Property(x => x.Strings).ShouldEventually().HaveCount(0))
+				.ShouldNotThrow();
+		}
+
+		[Test]
+		public void TestShouldEventuallyHaveCount2()
+		{
+			var obj = new TestClass1 {Strings = new string[0]};
+			Task.Factory.StartNew(() => obj.Strings = new string[1]);
+			new Action(() => obj.Property(x => x.Strings).ShouldEventually().HaveCount(1))
+				.ShouldNotThrow();
+		}
+
+		[Test]
+		public void TestShouldAfterHaveCount1()
+		{
+			var obj = new TestClass1 {Strings = null};
+
+			new Action(() => obj.Property(x => x.Strings).ShouldAfter(TimeSpan.FromMilliseconds(100)).HaveCount(1))
+				.ShouldThrow<AssertionException>()
+				.WithMessage("Expected collection to contain 1 item(s), but found found <null> after waiting for 100 ms.");
+		}
+
+		[Test]
+		public void TestShouldAfterHaveCount2()
+		{
+			var obj = new TestClass1 {Strings = new[] {"foobar"}};
+
+			new Action(() => obj.Property(x => x.Strings).ShouldAfter(TimeSpan.FromMilliseconds(100)).HaveCount(2))
+				.ShouldThrow<AssertionException>()
+				.WithMessage("Expected collection to contain 2 item(s), but found found 1 after waiting for 100 ms.");
+		}
+
+		[Test]
 		public void TestShouldEventuallyBeEmpty1()
 		{
 			var obj = new TestClass1 {Strings = new string[0]};

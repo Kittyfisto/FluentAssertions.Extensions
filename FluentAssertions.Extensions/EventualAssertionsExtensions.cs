@@ -92,6 +92,22 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
+		public static void HaveCount<T>(this EventualAssertions<IEnumerable<T>> that, int expectedCount, string message = null)
+		{
+			IEnumerable<T> finalValue;
+			if (IsTrue(that, values => values != null && values.Count() == expectedCount, that.MaximumWaitTime, out finalValue))
+				return;
+
+			var completeMessage = new StringBuilder();
+			completeMessage.AppendFormat("Expected collection to contain {0} item(s), but found found ", expectedCount);
+			completeMessage.AppendFormatCount(finalValue);
+			completeMessage.AppendWaitTime(that.MaximumWaitTime);
+			completeMessage.AppendMessage(message);
+			completeMessage.Append(".");
+
+			throw new AssertionException(completeMessage.ToString());
+		}
+
 		public static void BeEmpty<T>(this EventualAssertions<IEnumerable<T>> that, string message = null)
 		{
 			IEnumerable<T> finalValue;
@@ -143,6 +159,18 @@ namespace FluentAssertions
 				builder.AppendFormat("{0} second(s)", timespan.TotalSeconds);
 			else
 				builder.AppendFormat("{0} ms", timespan.TotalMilliseconds);
+		}
+
+		private static void AppendFormatCount<T>(this StringBuilder builder, IEnumerable<T> values)
+		{
+			if (values == null)
+			{
+				builder.AppendNull();
+			}
+			else
+			{
+				builder.Append(values.Count());
+			}
 		}
 
 		private static void AppendFormat<T>(this StringBuilder builder, IEnumerable<T> values)
