@@ -10,7 +10,27 @@ namespace FluentAssertions
 {
 	public static class EventualAssertionsExtensions
 	{
+		public static void BeNull<T>(this EventualAssertions<T> that, string message = null) where T : class
+		{
+			that.Be(null, message);
+		}
+
+		public static void NotBeNull<T>(this EventualAssertions<T> that, string message = null) where T : class
+		{
+			that.NotBe(null, message);
+		}
+
 		public static void HaveValue<T>(this EventualAssertions<T?> that, string message = null) where T : struct
+		{
+			that.NotBeNull(message);
+		}
+
+		public static void NotHaveValue<T>(this EventualAssertions<T?> that, string message = null) where T : struct
+		{
+			that.BeNull(message);
+		}
+
+		public static void NotBeNull<T>(this EventualAssertions<T?> that, string message = null) where T : struct
 		{
 			T? finalValue;
 			if (IsTrue(that, value => value != null, that.MaximumWaitTime, out finalValue))
@@ -27,7 +47,7 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
-		public static void NotHaveValue<T>(this EventualAssertions<T?> that, string message = null) where T : struct
+		public static void BeNull<T>(this EventualAssertions<T?> that, string message = null) where T : struct
 		{
 			T? finalValue;
 			if (IsTrue(that, value => value == null, that.MaximumWaitTime, out finalValue))
@@ -82,9 +102,10 @@ namespace FluentAssertions
 				return;
 
 			var completeMessage = new StringBuilder();
-			completeMessage.AppendFormat("Expected {0}, but found found {1}",
-			                             expectedValue,
-			                             finalValue);
+			completeMessage.Append("Expected ");
+			completeMessage.AppendValue(expectedValue);
+			completeMessage.Append(", but found ");
+			completeMessage.AppendValue(finalValue);
 			completeMessage.AppendWaitTime(that.MaximumWaitTime);
 			completeMessage.AppendMessage(message);
 			completeMessage.Append(".");
