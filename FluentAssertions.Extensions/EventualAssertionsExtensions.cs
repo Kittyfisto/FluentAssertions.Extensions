@@ -8,32 +8,64 @@ using NUnit.Framework;
 
 namespace FluentAssertions
 {
+	/// <summary>
+	///    Contains a number of methods to assert that an System.Object is in an expected state.
+	/// </summary>
 	public static class EventualAssertionsExtensions
 	{
+		/// <summary>
+		/// Asserts that the current object has not been initialized yet.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="message"></param>
 		public static void BeNull<T>(this EventualAssertions<T> that, string message = null) where T : class
 		{
 			that.Be(null, message);
 		}
 
+		/// <summary>
+		/// Asserts that the current object has been initialized already.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="message"></param>
 		public static void NotBeNull<T>(this EventualAssertions<T> that, string message = null) where T : class
 		{
 			that.NotBe(null, message);
 		}
 
-		public static void HaveValue<T>(this EventualAssertions<T?> that, string message = null) where T : struct
-		{
-			that.NotBeNull(message);
-		}
-
+		/// <summary>
+		/// Asserts that the current object has not been initialized yet.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="message"></param>
 		public static void NotHaveValue<T>(this EventualAssertions<T?> that, string message = null) where T : struct
 		{
 			that.BeNull(message);
 		}
 
+		/// <summary>
+		/// Asserts that the current object has been initialized already.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="message"></param>
+		public static void HaveValue<T>(this EventualAssertions<T?> that, string message = null) where T : struct
+		{
+			that.NotBeNull(message);
+		}
+
+		/// <summary>
+		/// Asserts that the current object has been initialized already.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="message"></param>
 		public static void NotBeNull<T>(this EventualAssertions<T?> that, string message = null) where T : struct
 		{
-			T? finalValue;
-			if (IsTrue(that, value => value != null, that.MaximumWaitTime, out finalValue))
+			if (IsTrue(that, value => value != null, that.MaximumWaitTime, out var finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();
@@ -47,10 +79,15 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
+		/// <summary>
+		/// Asserts that the current object has not been initialized yet.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="message"></param>
 		public static void BeNull<T>(this EventualAssertions<T?> that, string message = null) where T : struct
 		{
-			T? finalValue;
-			if (IsTrue(that, value => value == null, that.MaximumWaitTime, out finalValue))
+			if (IsTrue(that, value => value == null, that.MaximumWaitTime, out var finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();
@@ -64,22 +101,62 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
+		/// <summary>
+		/// Asserts that the value is true.
+		/// </summary>
+		/// <param name="that"></param>
+		/// <param name="message"></param>
 		public static void BeTrue(this EventualAssertions<bool> that, string message = null)
 		{
 			that.Be(expectedValue: true, message: message);
 		}
 
+		/// <summary>
+		/// Asserts that the value is false.
+		/// </summary>
+		/// <param name="that"></param>
+		/// <param name="message"></param>
 		public static void BeFalse(this EventualAssertions<bool> that, string message = null)
 		{
 			that.Be(expectedValue: false, message: message);
 		}
 
-		public static void BeGreaterOrEqual(this EventualAssertions<int> that,
-		                                    int threshold,
-		                                    string message = null)
+		/// <summary>
+		///     Asserts that the numeric value is greater than the specified expected value.
+		/// </summary>
+		/// <param name="that"></param>
+		/// <param name="threshold"></param>
+		/// <param name="message"></param>
+		public static void BeGreaterThan(this EventualAssertions<int> that,
+		                                 int threshold,
+		                                 string message = null)
 		{
-			int finalValue;
-			if (IsTrue(that, value => value >= threshold, that.MaximumWaitTime, out finalValue))
+			if (IsTrue(that, value => value > threshold, that.MaximumWaitTime, out var finalValue))
+				return;
+
+			var completeMessage = new StringBuilder();
+			completeMessage.AppendFormat("Expected {0} to be greater than {1}",
+			                             finalValue,
+			                             threshold);
+			completeMessage.AppendWaitTime(that.MaximumWaitTime);
+			completeMessage.AppendMessage(message);
+			completeMessage.Append(".");
+
+			throw new AssertionException(completeMessage.ToString());
+		}
+
+		/// <summary>
+		///     Asserts that the numeric value is greater than or equal to the specified expected
+		///     value.
+		/// </summary>
+		/// <param name="that"></param>
+		/// <param name="threshold"></param>
+		/// <param name="message"></param>
+		public static void BeGreaterOrEqualTo(this EventualAssertions<int> that,
+		                                      int threshold,
+		                                      string message = null)
+		{
+			if (IsTrue(that, value => value >= threshold, that.MaximumWaitTime, out var finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();
@@ -93,12 +170,19 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
+		/// <summary>
+		///     Asserts that an object equals another object using its System.Object.Equals(System.Object)
+		///     implementation.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="expectedValue"></param>
+		/// <param name="message"></param>
 		public static void Be<T>(this EventualAssertions<T> that,
 		                         T expectedValue,
 		                         string message = null)
 		{
-			T finalValue;
-			if (IsTrue(that, value => Equals(value, expectedValue), that.MaximumWaitTime, out finalValue))
+			if (IsTrue(that, value => Equals(value, expectedValue), that.MaximumWaitTime, out var finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();
@@ -113,12 +197,19 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
+		/// <summary>
+		///     Asserts that an object does not equal another object using its System.Object.Equals(System.Object)
+		///     method.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="expectedValue"></param>
+		/// <param name="message"></param>
 		public static void NotBe<T>(this EventualAssertions<T> that,
 		                            T expectedValue,
 		                            string message = null)
 		{
-			T finalValue;
-			if (IsTrue(that, value => !Equals(value, expectedValue), that.MaximumWaitTime, out finalValue))
+			if (IsTrue(that, value => !Equals(value, expectedValue), that.MaximumWaitTime, out var finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();
@@ -133,13 +224,21 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
+		/// <summary>
+		///     Expects the current collection to contain all the same elements in the same order
+		///     as the collection identified by elements. Elements are compared using their T.Equals(T)
+		///     method.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="expectedEnumeration"></param>
+		/// <param name="message"></param>
 		public static void Equal<T>(this EventualAssertions<IEnumerable<T>> that,
 		                            IEnumerable<T> expectedEnumeration,
 		                            string message = null)
 		{
 			var expectedCopy = expectedEnumeration.ToList();
 
-			IEnumerable<T> finalValue;
 			if (IsTrue(that, values =>
 			{
 				var copy = values?.ToList();
@@ -153,7 +252,7 @@ namespace FluentAssertions
 				}
 
 				return true;
-			}, that.MaximumWaitTime, out finalValue))
+			}, that.MaximumWaitTime, out var finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();
@@ -168,10 +267,17 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
+		/// <summary>
+		///     Asserts that the number of items in the collection matches the supplied expected
+		///     amount.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="expectedCount"></param>
+		/// <param name="message"></param>
 		public static void HaveCount<T>(this EventualAssertions<IEnumerable<T>> that, int expectedCount, string message = null)
 		{
-			IEnumerable<T> finalValue;
-			if (IsTrue(that, values => values != null && values.Count() == expectedCount, that.MaximumWaitTime, out finalValue))
+			if (IsTrue(that, values => values != null && values.Count() == expectedCount, that.MaximumWaitTime, out var finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();
@@ -184,10 +290,15 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
+		/// <summary>
+		///     Asserts that the collection does not contain any items.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="that"></param>
+		/// <param name="message"></param>
 		public static void BeEmpty<T>(this EventualAssertions<IEnumerable<T>> that, string message = null)
 		{
-			IEnumerable<T> finalValue;
-			if (IsTrue(that, values => values != null && !values.Any(), that.MaximumWaitTime, out finalValue))
+			if (IsTrue(that, values => values != null && !values.Any(), that.MaximumWaitTime, out var finalValue))
 				return;
 
 			var completeMessage = new StringBuilder();

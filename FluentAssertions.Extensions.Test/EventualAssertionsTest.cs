@@ -8,6 +8,42 @@ namespace FluentAssertions.Extensions.Test
 	public sealed class EventualAssertionsTest
 	{
 		[Test]
+		public void TestShouldEventuallyBeGreaterOrEqualTo1()
+		{
+			var obj = new TestClass1 {IntValue = 42};
+			new Action(() => obj.Property(x => x.IntValue).ShouldEventually().BeGreaterOrEqualTo(41)).ShouldNotThrow();
+			new Action(() => obj.Property(x => x.IntValue).ShouldEventually().BeGreaterOrEqualTo(42)).ShouldNotThrow();
+		}
+
+		[Test]
+		public void TestShouldEventuallyBeGreaterOrEqualTo2()
+		{
+			var obj = new TestClass1 {IntValue = 42};
+			new Action(() => obj.Property(x => x.IntValue).ShouldAfter(TimeSpan.FromMilliseconds(100)).BeGreaterOrEqualTo(43))
+				.ShouldThrow<AssertionException>()
+				.WithMessage("Expected 42 to be greater or equal to 43 after waiting for 100 ms.");
+		}
+
+		[Test]
+		public void TestShouldEventuallyBeGreaterThan1()
+		{
+			var obj = new TestClass1 {IntValue = 42};
+			new Action(() => obj.Property(x => x.IntValue).ShouldEventually().BeGreaterThan(41)).ShouldNotThrow();
+		}
+
+		[Test]
+		public void TestShouldEventuallyBeGreaterThan2()
+		{
+			var obj = new TestClass1 {IntValue = 42};
+			new Action(() => obj.Property(x => x.IntValue).ShouldAfter(TimeSpan.FromMilliseconds(100)).BeGreaterThan(42))
+				.ShouldThrow<AssertionException>()
+				.WithMessage("Expected 42 to be greater than 42 after waiting for 100 ms.");
+			new Action(() => obj.Property(x => x.IntValue).ShouldAfter(TimeSpan.FromMilliseconds(100)).BeGreaterThan(43))
+				.ShouldThrow<AssertionException>()
+				.WithMessage("Expected 42 to be greater than 43 after waiting for 100 ms.");
+		}
+
+		[Test]
 		public void TestNullableShouldEventuallyNotBeNull1()
 		{
 			var obj = new TestClass1 {Nullable = 42};
