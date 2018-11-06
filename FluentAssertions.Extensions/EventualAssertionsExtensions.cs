@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,40 @@ namespace FluentAssertions
 {
 	public static class EventualAssertionsExtensions
 	{
+		public static void HaveValue<T>(this EventualAssertions<T?> that, string message = null) where T : struct
+		{
+			T? finalValue;
+			if (IsTrue(that, value => value != null, that.MaximumWaitTime, out finalValue))
+				return;
+
+			var completeMessage = new StringBuilder();
+			completeMessage.Append("Expected ");
+			completeMessage.AppendValue(finalValue);
+			completeMessage.Append(" to have a value");
+			completeMessage.AppendWaitTime(that.MaximumWaitTime);
+			completeMessage.AppendMessage(message);
+			completeMessage.Append(".");
+
+			throw new AssertionException(completeMessage.ToString());
+		}
+
+		public static void NotHaveValue<T>(this EventualAssertions<T?> that, string message = null) where T : struct
+		{
+			T? finalValue;
+			if (IsTrue(that, value => value == null, that.MaximumWaitTime, out finalValue))
+				return;
+
+			var completeMessage = new StringBuilder();
+			completeMessage.Append("Expected ");
+			completeMessage.AppendValue(finalValue);
+			completeMessage.Append(" to not have a value");
+			completeMessage.AppendWaitTime(that.MaximumWaitTime);
+			completeMessage.AppendMessage(message);
+			completeMessage.Append(".");
+
+			throw new AssertionException(completeMessage.ToString());
+		}
+
 		public static void BeTrue(this EventualAssertions<bool> that, string message = null)
 		{
 			that.Be(expectedValue: true, message: message);
@@ -57,6 +92,26 @@ namespace FluentAssertions
 			throw new AssertionException(completeMessage.ToString());
 		}
 
+		public static void NotBe<T>(this EventualAssertions<T> that,
+		                            T expectedValue,
+		                            string message = null)
+		{
+			T finalValue;
+			if (IsTrue(that, value => !Equals(value, expectedValue), that.MaximumWaitTime, out finalValue))
+				return;
+
+			var completeMessage = new StringBuilder();
+			completeMessage.Append("Expected ");
+			AppendValue(completeMessage, expectedValue);
+			completeMessage.Append(" not to be equal to ");
+			AppendValue(completeMessage, finalValue);
+			completeMessage.AppendWaitTime(that.MaximumWaitTime);
+			completeMessage.AppendMessage(message);
+			completeMessage.Append(".");
+
+			throw new AssertionException(completeMessage.ToString());
+		}
+
 		public static void Equal<T>(this EventualAssertions<IEnumerable<T>> that,
 		                            IEnumerable<T> expectedEnumeration,
 		                            string message = null)
@@ -82,9 +137,9 @@ namespace FluentAssertions
 
 			var completeMessage = new StringBuilder();
 			completeMessage.Append("Expected collection equal to ");
-			completeMessage.AppendFormat(expectedCopy);
+			AppendValue(completeMessage, expectedCopy);
 			completeMessage.Append(", but found found ");
-			completeMessage.AppendFormat(finalValue);
+			completeMessage.AppendFormatEnumeration(finalValue);
 			completeMessage.AppendWaitTime(that.MaximumWaitTime);
 			completeMessage.AppendMessage(message);
 			completeMessage.Append(".");
@@ -116,7 +171,7 @@ namespace FluentAssertions
 
 			var completeMessage = new StringBuilder();
 			completeMessage.Append("Expected empty collection, but found found ");
-			completeMessage.AppendFormat(finalValue);
+			completeMessage.AppendFormatEnumeration(finalValue);
 			completeMessage.AppendWaitTime(that.MaximumWaitTime);
 			completeMessage.AppendMessage(message);
 			completeMessage.Append(".");
@@ -173,7 +228,27 @@ namespace FluentAssertions
 			}
 		}
 
-		private static void AppendFormat<T>(this StringBuilder builder, IEnumerable<T> values)
+		private static void AppendValue<T>(this StringBuilder builder, T value)
+		{
+			if (value == null)
+			{
+				builder.AppendNull();
+			}
+			else
+			{
+				if (!(value is string) && value is IEnumerable)
+				{
+					dynamic tmp = value;
+					AppendFormatEnumeration(builder, tmp);
+				}
+				else
+				{
+					builder.Append(value);
+				}
+			}
+		}
+
+		private static void AppendFormatEnumeration<T>(this StringBuilder builder, IEnumerable<T> values)
 		{
 			if (values == null)
 			{

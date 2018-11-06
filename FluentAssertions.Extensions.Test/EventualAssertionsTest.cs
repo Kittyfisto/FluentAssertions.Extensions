@@ -8,6 +8,66 @@ namespace FluentAssertions.Extensions.Test
 	public sealed class EventualAssertionsTest
 	{
 		[Test]
+		public void TestShouldEventuallyHaveValue1()
+		{
+			var obj = new TestClass1 {Nullable = 42};
+			new Action(() => obj.Property(x => x.Nullable).ShouldEventually().HaveValue())
+				.ShouldNotThrow();
+		}
+
+		[Test]
+		public void TestShouldEventuallyHaveValue2()
+		{
+			var obj = new TestClass1 {Nullable = null};
+			new Action(() => obj.Property(x => x.Nullable).ShouldAfter(TimeSpan.FromMilliseconds(100)).HaveValue())
+				.ShouldThrow<AssertionException>()
+				.WithMessage("Expected <null> to have a value after waiting for 100 ms.");
+		}
+
+		[Test]
+		public void TestShouldEventuallyNotHaveValue1()
+		{
+			var obj = new TestClass1 {Nullable = null};
+			new Action(() => obj.Property(x => x.Nullable).ShouldEventually().NotHaveValue())
+				.ShouldNotThrow();
+		}
+
+		[Test]
+		public void TestShouldEventuallyNotHaveValue2()
+		{
+			var obj = new TestClass1 {Nullable = 42};
+			new Action(() => obj.Property(x => x.Nullable).ShouldAfter(TimeSpan.FromMilliseconds(100)).NotHaveValue())
+				.ShouldThrow<AssertionException>()
+				.WithMessage("Expected 42 to not have a value after waiting for 100 ms.");
+		}
+
+		[Test]
+		public void TestShouldEventuallyNotBe1()
+		{
+			var obj = new TestClass1 {Strings = new string[0]};
+			new Action(() => obj.Property(x => x.Strings).ShouldEventually().NotBe(null))
+				.ShouldNotThrow();
+		}
+
+		[Test]
+		public void TestShouldEventuallyNotBe2()
+		{
+			var obj = new TestClass1 {Strings = null};
+			new Action(() => obj.Property(x => x.Strings).ShouldAfter(TimeSpan.FromMilliseconds(100)).NotBe(null))
+				.ShouldThrow<AssertionException>()
+				.WithMessage("Expected <null> not to be equal to <null> after waiting for 100 ms.");
+		}
+
+		[Test]
+		public void TestShouldEventuallyNotBe3()
+		{
+			var obj = new TestClass1 {String = "foo"};
+			new Action(() => obj.Property(x => x.String).ShouldAfter(TimeSpan.FromMilliseconds(100)).NotBe("foo"))
+				.ShouldThrow<AssertionException>()
+				.WithMessage("Expected foo not to be equal to foo after waiting for 100 ms.");
+		}
+
+		[Test]
 		public void TestShouldEventuallyHaveCount1()
 		{
 			var obj = new TestClass1 {Strings = new string[0]};
