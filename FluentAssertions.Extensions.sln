@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentAssertions.Extensions", "FluentAssertions.Extensions\FluentAssertions.Extensions.csproj", "{483C2EDB-EBEC-4AB6-9219-F33C751B4ED6}"
 EndProject
@@ -13,6 +13,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Tests_", "_Tests_", "{8C22AE72-3A04-4E2E-BC31-5C5A1EFFB650}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentAssertions.Extensions.Test", "FluentAssertions.Extensions.Test\FluentAssertions.Extensions.Test.csproj", "{C8928AA5-3C28-462C-90FF-EC9B61804D13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentAssertions.Extensions.NETStandard", "FluentAssertions.Extensions.NETStandard\FluentAssertions.Extensions.NETStandard.csproj", "{C94181D6-ABAF-4AE0-8E1F-4E1C5DBA7E3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentAssertions.Extensions.Test.NETCore", "FluentAssertions.Extensions.Test.NETCore\FluentAssertions.Extensions.Test.NETCore.csproj", "{557AB8CB-35B6-41A5-B785-3F32FBAB0074}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,11 +32,23 @@ Global
 		{C8928AA5-3C28-462C-90FF-EC9B61804D13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8928AA5-3C28-462C-90FF-EC9B61804D13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8928AA5-3C28-462C-90FF-EC9B61804D13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C94181D6-ABAF-4AE0-8E1F-4E1C5DBA7E3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C94181D6-ABAF-4AE0-8E1F-4E1C5DBA7E3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C94181D6-ABAF-4AE0-8E1F-4E1C5DBA7E3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C94181D6-ABAF-4AE0-8E1F-4E1C5DBA7E3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{557AB8CB-35B6-41A5-B785-3F32FBAB0074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{557AB8CB-35B6-41A5-B785-3F32FBAB0074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{557AB8CB-35B6-41A5-B785-3F32FBAB0074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{557AB8CB-35B6-41A5-B785-3F32FBAB0074}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C8928AA5-3C28-462C-90FF-EC9B61804D13} = {8C22AE72-3A04-4E2E-BC31-5C5A1EFFB650}
+		{557AB8CB-35B6-41A5-B785-3F32FBAB0074} = {8C22AE72-3A04-4E2E-BC31-5C5A1EFFB650}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A48CA357-4D44-4087-901B-4E1A0A329925}
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>FluentAssertions.Extensions</AssemblyName>
+    <RootNamespace>FluentAssertions.Extensions</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DocumentationFile>..\bin\Release\FluentAssertions.Extensions.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <DocumentationFile>..\bin\Debug\FluentAssertions.Extensions.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\FluentAssertions.Extensions\EventualAssertions.cs" Link="EventualAssertions.cs" />
+    <Compile Include="..\FluentAssertions.Extensions\EventualAssertionsExtensions.cs" Link="EventualAssertionsExtensions.cs" />
+    <Compile Include="..\FluentAssertions.Extensions\ObjectExtensions.cs" Link="ObjectExtensions.cs" />
+    <Compile Include="..\FluentAssertions.Extensions\PropertyAssertions.cs" Link="PropertyAssertions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="NUnit" Version="3.6.1" />
+  </ItemGroup>
+
+</Project>
