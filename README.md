@@ -18,7 +18,7 @@ myObject.Property(x => x.IsFinished).ShouldEventually().BeTrue(TimeSpan.FromSeco
 
 ## Credits
 
-Simon Mießler 2017
+Simon Mießler 2019
 
 ## License
 
